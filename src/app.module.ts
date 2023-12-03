@@ -1,26 +1,29 @@
 import { Module } from '@nestjs/common';
-import { ScraperModule } from './scraper/scraper.module';
-import { ShowtimeModule } from './showtime/showtime.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShowtimeEntity } from './showtime/entity/showtime.entity';
 import { ShowtimeSummaryEntity } from './showtime/entity/showtimeSummary.entity';
+import { ScraperModule } from './scraper/scraper.module';
+import { ShowtimeModule } from './showtime/showtime.module';
+import { AppConfigModule } from './config/config.module'
+import { AppConfigService } from './config/config.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      //TODO: Refactor this section to use the NestJS configuration management feature.
-      // Avoid hardcoding sensitive information and use environment variables instead.
-      // You may need to create a separate configuration module or use an existing one.
-      // Ensure that the solution is scalable and environment agnostic.
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '5600',
-      database: 'scraper',
-      entities: [ShowtimeEntity, ShowtimeSummaryEntity],
-      synchronize: true,
-      logging: true,
+    AppConfigModule,
+    TypeOrmModule.forRootAsync({
+      imports: [AppConfigModule],
+      useFactory: async (configService: AppConfigService) => ({
+        type: 'postgres',
+        host: configService.dbHost,
+        port: configService.dbPort,
+        username: configService.dbUsername,
+        password: configService.dbPassword,
+        database: configService.dbName,
+        entities: [ShowtimeEntity, ShowtimeSummaryEntity],
+        synchronize: configService.dbSynchronize,
+        logging: configService.dbLogging,
+      }),
+      inject: [AppConfigService],
     }),
     ScraperModule,
     ShowtimeModule,
