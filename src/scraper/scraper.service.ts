@@ -6,10 +6,13 @@ import { ScraperResponseDto } from './dto/scraper-response.dto';
 import * as cheerio from 'cheerio';
 import { WebsiteData } from './interface/website-data.interface';
 import { ShowtimeService } from '../showtime/showtime.service';
+const moment = require('moment');
 
 @Injectable()
 export class ScraperService {
   private readonly logger = new Logger(ScraperService.name);
+  private readonly BASE_URL = 'https://uae.voxcinemas.com';
+
 
   constructor(
     private readonly httpService: HttpService,
@@ -59,27 +62,8 @@ export class ScraperService {
       }
     });
 
-    const showtimes: ShowtimeInterface[] = [
-      //Sample data
-      {
-        showtimeId: '0009-170678',
-        cinemaName: 'Al Hamra Mall - Ras Al Khaimah',
-        movieTitle: 'Taylor Swift: The Eras Tour',
-        showtimeInUTC: '2023-11-03T17:30:00Z',
-        bookingLink: 'https://uae.voxcinemas.com/booking/0009-170678',
-        attributes: ['Standard'],
-      },
-    ];
+    const showtimes: ShowtimeInterface[] = this.parseShowtimes(html);
 
-    /*
-    TODO: Implement showtime scraping functionality. Specific requirements are as follows:
-     - Navigate to the VOX Cinemas showtime listing at 'https://uae.voxcinemas.com/showtimes'
-     - Choose a random cinema location. For consistency in testing, you might prefer selecting 'Al Hamra Mall - Ras Al Khaimah' or any other location of choice from 'https://voxcinemas.com'.
-     - Scrape showtime data for the selected cinema for the date '2023-11-03' or any other date. The expected URL format is 'https://uae.voxcinemas.com/showtimes?c=al-hamra-mall-ras-al-khaimah&d=20231103'.
-     - The scraped data should include showtimeId, cinemaName, movieTitle, showtimeInUTC, bookingLink, and attributes. Populate the 'showtimes' array with this data.
-     - Ensure that the scraping logic is robust, handling potential inconsistencies in the webpage structure and providing informative error messages if scraping fails.
-     - Consider efficiency and performance in your implementation, avoiding unnecessary requests or data processing operations.
-     */
 
     return {
       title,
@@ -90,6 +74,50 @@ export class ScraperService {
       imageUrls,
       showtimes,
     };
+  }
+
+  private convertToUTCTimestamp(dateString, timeString) {
+    const dateTime = moment(`${dateString} ${timeString}`, 'YYYY-MM-DD h:mma');
+
+    return dateTime.utc().format();
+  }
+
+
+  private parseShowtimes(html: string): ShowtimeInterface[] {
+    const $ = cheerio.load(html);
+    const showtimes: ShowtimeInterface[] = [];
+
+    $('article.movie-compare').each((_articleIndex, article) => {
+      const movieTitle = $(article).find('h2').text().trim();
+      const cinemaName = 'Al Hamra Mall - Ras Al Khaimah';
+
+      $(article).find('ol.showtimes li').each((_showtimeIndex, showtimeLi) => {
+        const screenType = $(showtimeLi).find('strong').text().trim();
+
+        $(showtimeLi).find('ol li').each((_timeIndex, timeLi) => {
+          const showtimeId = $(timeLi).attr('data-id');
+          const showtimeLinkElement = $(timeLi).find('a.action.showtime');
+          const showtimeInUTC = showtimeLinkElement.text().trim();
+          let bookingLink = showtimeLinkElement.attr('href');
+
+          if (bookingLink && !bookingLink.startsWith('http')) {
+            bookingLink = this.BASE_URL + bookingLink;
+          }
+          const date = '2023-11-03';
+
+          showtimes.push({
+            showtimeId,
+            cinemaName,
+            movieTitle,
+            showtimeInUTC: this.convertToUTCTimestamp(date, showtimeInUTC),
+            bookingLink,
+            attributes: [screenType],
+          });
+        });
+      });
+    });
+
+    return showtimes;
   }
 
   async scrape(url: string): Promise<ScraperResponseDto> {
