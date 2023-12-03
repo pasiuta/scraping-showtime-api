@@ -17,55 +17,61 @@ export class ShowtimeService {
 
     private async updateShowtimeSummary() {
         await this.dataSource.query(`
-    INSERT INTO "showtime-summary"
-    ("showtimeDate",
-     "cinemaName",
-     "movieTitle",
-     attributes,
-     city,
-     "showtimeCount")
-    select DISTINCT date(showtime."showtimeInUTC" AT TIME ZONE 'UTC'),
-        showtime."cinemaName",
-        showtime."movieTitle",
-        showtime.attributes,
-        showtime.city,
-        count(*)
-    from "showtime"
-    group by 1, 2, 3, 4, 5
-    ON CONFLICT
-        (
-        "showtimeDate",
-        "cinemaName",
-        "movieTitle",
-        attributes,
-        city
-        )
-        DO UPDATE
-               SET "showtimeCount"= EXCLUDED."showtimeCount"
-`);
-
-        //TODO: Investigate and resolve the duplication issue in the "showtime-summary" table.
-        // If you check the "showtime-summary" table rows you will notice that there duplicate rows.
-        // Analyze the current aggregation query to identify why duplicates are being created.
-        // Modify the query or the table structure as necessary to prevent duplicate entries.
-        // Ensure your solution maintains data integrity and optimizes performance.
+        INSERT INTO "showtime-summary"
+        ("showtimeDate",
+         "cinemaName",
+         "movieTitle",
+         attributes,
+         city,
+         "showtimeCount")
+        select date(showtime."showtimeInUTC" AT TIME ZONE 'UTC'),
+            showtime."cinemaName",
+            showtime."movieTitle",
+            showtime.attributes,
+            showtime.city,
+            count(*)
+        from "showtime"
+        group by 1, 2, 3, 4, 5
+        ON CONFLICT
+            (
+            "showtimeDate",
+            "cinemaName",
+            "movieTitle",
+            attributes,
+            city
+            )
+            DO UPDATE
+                   SET "showtimeCount"= EXCLUDED."showtimeCount"
+    `);
     }
-
-
-
-
 
     async addShowtimes(showtimes: ShowtimeInterface[]) {
-        for (const showtime of showtimes) {
-            const existingShowtime = await this.showtimeEntityRepository.findOne({where: { showtimeId: showtime.showtimeId }});
-            if (!existingShowtime) {
-                await this.showtimeEntityRepository.save(showtime);
-            } else {
-                console.warn(`Skipping duplicate entry with showtimeId: ${showtime.showtimeId}`);
-            }
+        try {
+            const showtimeValues = showtimes.map(showtime => ({
+                showtimeId: showtime.showtimeId,
+                movieTitle: showtime.movieTitle,
+                cinemaName: showtime.cinemaName,
+                showtimeInUTC: showtime.showtimeInUTC,
+                bookingLink: showtime.bookingLink,
+                attributes: showtime.attributes,
+            }));
+
+            await this.dataSource
+                .createQueryBuilder()
+                .insert()
+                .into(ShowtimeEntity)
+                .values(showtimeValues)
+                .orIgnore()
+                .execute();
+        } catch (error) {
+            console.error('Error inserting showtimes: ', error);
         }
+
         await this.updateShowtimeSummary();
     }
+
+
+
 
 
 
