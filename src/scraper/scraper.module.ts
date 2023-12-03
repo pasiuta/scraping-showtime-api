@@ -6,9 +6,11 @@ import { ShowtimeService } from '../showtime/showtime.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShowtimeEntity } from '../showtime/entity/showtime.entity';
 import { ShowtimeSummaryEntity } from '../showtime/entity/showtimeSummary.entity';
+import {AppConfigModule} from "../config/config.module";
 
 @Module({
   imports: [
+    AppConfigModule,
     HttpModule,
     TypeOrmModule.forFeature([ShowtimeEntity, ShowtimeSummaryEntity]),
   ],

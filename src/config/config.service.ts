@@ -40,5 +40,10 @@ export class AppConfigService {
     get dbLogging(): boolean {
         return this.configService.get<boolean>('DB_LOGGING', true);
     }
+    get baseUrl(): string {
+        return this.configService.get<string>('BASE_URL', 'https://uae.voxcinemas.com');
+    }
+
+
 
 }
