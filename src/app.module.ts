@@ -14,7 +14,7 @@ import { ShowtimeSummaryEntity } from './showtime/entity/showtimeSummary.entity'
       // Ensure that the solution is scalable and environment agnostic.
       type: 'postgres',
       host: 'localhost',
-      port: 5433,
+      port: 5432,
       username: 'postgres',
       password: '5600',
       database: 'scraper',
