@@ -19,9 +19,6 @@ spec:
           image: your-registry/scraping-showtime-api:latest
           ports:
             - containerPort: 3000
-          # env:
-          # - name: ENV_VAR_NAME
-          #   value: "value"
           resources:
             requests:
               memory: "64Mi"
