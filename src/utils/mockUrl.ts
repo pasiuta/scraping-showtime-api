@@ -1,0 +1,1 @@
+export const mockUrl = 'https://ua1e.voxcinemas.com/showtimes?c=al-hamra-mall-ras-al-khaimah&d=20231103';

@@ -6,13 +6,13 @@ import { ScraperResponseDto } from './dto/scraper-response.dto';
 import * as cheerio from 'cheerio';
 import { WebsiteData } from './interface/website-data.interface';
 import { ShowtimeService } from '../showtime/showtime.service';
-import {AppConfigService} from "../config/config.service";
+import { AppConfigService } from "../config/config.service";
 const moment = require('moment');
 
 @Injectable()
 export class ScraperService {
-  private readonly logger:Logger = new Logger(ScraperService.name);
-  private readonly BASE_URL:string = this.configService.baseUrl
+  private readonly logger: Logger = new Logger(ScraperService.name);
+  private readonly BASE_URL: string = this.configService.baseUrl
 
 
   constructor(
@@ -36,13 +36,13 @@ export class ScraperService {
 
   private parseHtml(html: string): WebsiteData {
     const $ = cheerio.load(html);
-    const title:string = $('title').text().trim();
-    const metaDescription:string = $('meta[name="description"]').attr('content') ?? '';
-    const faviconUrl:string = $('link[rel="shortcut icon"]').attr('href') ?? '';
+    const title: string = $('title').text().trim();
+    const metaDescription: string = $('meta[name="description"]').attr('content') ?? '';
+    const faviconUrl: string = $('link[rel="shortcut icon"]').attr('href') ?? '';
 
     const scriptUrls: string[] = [];
     $('script').each((_i, el) => {
-      const src:string = $(el).attr('src');
+      const src: string = $(el).attr('src');
       if (src) {
         scriptUrls.push(src);
       }
@@ -90,22 +90,22 @@ export class ScraperService {
     const showtimes: ShowtimeInterface[] = [];
 
     $('article.movie-compare').each((_articleIndex, article) => {
-      const movieTitle:string = $(article).find('h2').text().trim();
-      const cinemaName:string = 'Al Hamra Mall - Ras Al Khaimah';
+      const movieTitle: string = $(article).find('h2').text().trim();
+      const cinemaName: string = 'Al Hamra Mall - Ras Al Khaimah';
 
       $(article).find('ol.showtimes li').each((_showtimeIndex, showtimeLi) => {
-        const screenType:string = $(showtimeLi).find('strong').text().trim();
+        const screenType: string = $(showtimeLi).find('strong').text().trim();
 
         $(showtimeLi).find('ol li').each((_timeIndex, timeLi) => {
-          const showtimeId:string = $(timeLi).attr('data-id');
+          const showtimeId: string = $(timeLi).attr('data-id');
           const showtimeLinkElement = $(timeLi).find('a.action.showtime');
-          const showtimeInUTC:string = showtimeLinkElement.text().trim();
-          let bookingLink:string = showtimeLinkElement.attr('href');
+          const showtimeInUTC: string = showtimeLinkElement.text().trim();
+          let bookingLink: string = showtimeLinkElement.attr('href');
 
           if (bookingLink && !bookingLink.startsWith('http')) {
             bookingLink = this.BASE_URL + bookingLink;
           }
-          const date:string = '2023-11-03';
+          const date: string = '2023-11-03';
 
           showtimes.push({
             showtimeId,
@@ -123,7 +123,7 @@ export class ScraperService {
   }
 
   async scrape(url: string): Promise<ScraperResponseDto> {
-    const html:string = await this.fetchHtml(url);
+    const html: string = await this.fetchHtml(url);
     const websiteData: WebsiteData = this.parseHtml(html);
     await this.showtimeService.addShowtimes(websiteData.showtimes);
     return {
