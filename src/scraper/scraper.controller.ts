@@ -1,4 +1,4 @@
-import {Controller, Get, HttpException, HttpStatus, Query} from '@nestjs/common';
+import {Controller, Get, HttpException, HttpStatus, Query, UsePipes, ValidationPipe} from '@nestjs/common';
 import {ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
 import { ScraperRequestDto } from './dto/scraper-request.dto';
 import { ScraperService } from './scraper.service';
@@ -19,10 +19,7 @@ export class ScraperController {
     status: 400,
     description: 'Bad Request - The provided URL was invalid or not properly formatted.',
   })
-  @ApiResponse({
-    status: 404,
-    description: 'Not Found - The requested resource could not be found on the server.',
-  })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   @Get('scrape')
   async scrapeRequest(
       @Query() scrapeRequestDto: ScraperRequestDto,
