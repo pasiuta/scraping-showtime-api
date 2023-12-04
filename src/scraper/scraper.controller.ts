@@ -1,8 +1,10 @@
-import {Controller, Get, HttpException, HttpStatus, Query, UsePipes, ValidationPipe} from '@nestjs/common';
-import {ApiOperation, ApiResponse, ApiTags} from '@nestjs/swagger';
+import { Controller, Get, HttpException, HttpStatus, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ScraperRequestDto } from './dto/scraper-request.dto';
 import { ScraperService } from './scraper.service';
 import { ScraperResponseDto } from './dto/scraper-response.dto';
+import { scraperScrapeResponse } from "./docs/scraper.scrape.response";
+import { scraperScrapeBadResponse } from "./docs/scraper.scrape.badResponse";
 
 @Controller()
 export class ScraperController {
@@ -14,14 +16,24 @@ export class ScraperController {
     status: 200,
     description: 'The scraping process was successful. Returns the scraped data.',
     type: ScraperResponseDto,
+    content: {
+      'application/json': {
+        example: scraperScrapeResponse,
+      },
+    },
   })
   @ApiResponse({
     status: 400,
     description: 'Bad Request - The provided URL was invalid or not properly formatted.',
+    content: {
+      'application/json': {
+        example: scraperScrapeBadResponse,
+      },
+    },
   })
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   @Get('scrape')
-  async scrapeRequest(
+  async scrape(
       @Query() scrapeRequestDto: ScraperRequestDto,
   ): Promise<ScraperResponseDto> {
     try {
