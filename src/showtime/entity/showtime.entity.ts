@@ -3,11 +3,10 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  UpdateDateColumn, Index,
 } from 'typeorm';
 
 @Entity({ name: 'showtime', orderBy: { id: 'ASC' } })
-//TODO: add index if necessary
 export class ShowtimeEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -18,6 +17,7 @@ export class ShowtimeEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  @Index()
   @Column({ nullable: false, unique: true })
   showtimeId: string;
 
