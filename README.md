@@ -1,73 +1,57 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Web Scraping API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Overview
+The Web Scraping API facilitates the extraction of structured data from web pages. It is designed for content aggregation, data analysis, and automating data collection processes from websites.
 
-## Description
+## Prerequisites
+Before using the Web Scraping API, ensure the following are installed:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Node.js**: Download and install from [Node.js official website](https://nodejs.org/).
+- **NPM (Node Package Manager)**: Install via `npm install -g npm`.
+- **Axios**: Ensure Axios is installed for HTTP requests.
+- **Cheerio**: Required for HTML parsing and manipulation.
+- **Postman**: For API testing, download from [Postman website](https://www.postman.com/downloads/).
+- **Database**: Set up a PostgreSQL database for data persistence.
 
 ## Installation
+1. Clone the project repository.
+2. Navigate to the project directory.
+3. Run `npm install` to install dependencies.
+
+## Usage
+
+### Starting the API
+Run the API server using the command:
 
 ```bash
-$ npm install
+npm run start:dev
 ```
 
-## Running the app
+### Scraping a Website
+To initiate scraping, send a GET request to `http://localhost:3000/scrape` with the required URL query parameter.
 
-```bash
-# development
-$ npm run start
+Example Request:
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```http
+GET http://localhost:3000/scrape?url=http://example.com
 ```
 
-## Test
+### Responses
+The API responds with structured data extracted from the provided URL.
 
-```bash
-# unit tests
-$ npm run test
+## API Endpoints
 
-# e2e tests
-$ npm run test:e2e
+### GET /scrape
+- **Description**: Initiates the scraping process.
+- **Query Parameters**:
+    - `url`: URL of the website to scrape.
+- **Responses**:
+    - `200 OK`: Returns scraped data.
+    - `400 Bad Request`: Invalid or missing URL.
+    - `500 Internal Server Error`: Server-side error during scraping.
 
-# test coverage
-$ npm run test:cov
+## Error Handling
+- `400 Bad Request`: Occurs if the URL is missing or improperly formatted.
+- `500 Internal Server Error`: Indicates server-side issues in fetching or parsing HTML.
 ```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
